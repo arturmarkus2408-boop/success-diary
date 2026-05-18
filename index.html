@@ -473,7 +473,7 @@ if (!USER_ID) {
   USER_ID = "user_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   localStorage.setItem("sd_uid", USER_ID);
 }
-const userDoc = () => doc(db, "users", USER_ID);
+const userDoc = () => db.collection("users").doc(USER_ID);
 
 // Флаг — идёт ли сейчас загрузка из облака (чтобы не перезаписать)
 let cloudLoaded = false;
