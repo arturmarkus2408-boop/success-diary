@@ -13,6 +13,10 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK (compat версия — работает без import/module) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -331,7 +335,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;backgroun
 <div id="toast-wrap" class="fixed bottom-24 right-4 sm:right-6 z-50 space-y-2"></div>
 <div id="modal-wrap"></div>
 
-<script type="module">
+<script>
 "use strict";
 // ══════════════════════════════════════════
 // TRANSLATIONS
@@ -450,9 +454,6 @@ en:{
 // FIREBASE — облачная синхронизация
 // ══════════════════════════════════════════
 // Firebase SDK загружается через CDN (без npm/сборщика)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyCOQF9xiFaHmgSk6vFvbicSY-BERbHP8r0",
   authDomain: "success-diary-4326a.firebaseapp.com",
@@ -462,8 +463,8 @@ const firebaseConfig = {
   appId: "1:624970744864:web:17ca8d312302c81860e845"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
+const fbApp = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 // ID пользователя — храним в localStorage, генерируем один раз
 // Это анонимный уникальный ID — привязан к браузеру
@@ -499,7 +500,7 @@ async function saveToCloud() {
   saveTimeout = setTimeout(async () => {
     showSyncStatus("saving");
     try {
-      await setDoc(userDoc(), S);
+      await userDoc().set(S);
       showSyncStatus("saved");
     } catch(e) {
       console.warn("Firebase save error:", e);
@@ -512,7 +513,7 @@ async function saveToCloud() {
 async function loadFromCloud() {
   showSyncStatus("loading");
   try {
-    const snap = await getDoc(userDoc());
+    const snap = await userDoc().get();
     if (snap.exists()) {
       const cloudData = snap.data();
       S = { ...DEF_STATE, ...cloudData,
@@ -528,7 +529,7 @@ async function loadFromCloud() {
       showSyncStatus("saved");
     } else {
       // Первый раз — загружаем локальные данные в облако
-      await setDoc(userDoc(), S);
+      await userDoc().set(S);
       cloudLoaded = true;
       showSyncStatus("saved");
     }
@@ -541,7 +542,7 @@ async function loadFromCloud() {
 
 // Слушаем изменения в реальном времени с других устройств
 function subscribeToCloud() {
-  onSnapshot(userDoc(), (snap) => {
+  userDoc().onSnapshot((snap) => {
     if (!snap.exists() || !cloudLoaded) return;
     const cloudData = snap.data();
     // Проверяем что данные действительно изменились (не наше же сохранение)
@@ -591,7 +592,8 @@ try{
 // save — сохраняет локально И в облако
 const save=()=>{
   localStorage.setItem(LS,JSON.stringify(S));
-  if(cloudLoaded) saveToCloud();
+  // Сохраняем в облако всегда когда firebase готов
+  if(typeof firebase !== 'undefined' && db) saveToCloud();
 };
 
 // ══════════════════════════════════════════
