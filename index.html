@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Success Diary</title>
+<meta name="theme-color" content="#09090b" id="meta-tc">
+<meta name="description" content="Личный дневник достижений и роста уверенности">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Success Diary">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme=dark]{
+  --bg:#09090b;--card:#18181b;--inp:#27272a;--inp2:#3f3f46;
+  --t:#e2e8f0;--t2:#cbd5e1;--td:#94a3b8;--tm:#64748b;
+  --br:#334155;--brs:#1e293b;--hov:rgba(255,255,255,.07);
+  --sh:0 20px 40px -10px rgba(0,0,0,.5);
+}
+[data-theme=light]{
+  --bg:#fafaf9;--card:#fff;--inp:#f4f4f5;--inp2:#e4e4e7;
+  --t:#18181b;--t2:#27272a;--td:#52525b;--tm:#71717a;
+  --br:#e4e4e7;--brs:#f4f4f5;--hov:rgba(0,0,0,.05);
+  --sh:0 20px 40px -10px rgba(0,0,0,.12);
+}
+[data-theme=warm]{
+  --bg:#1c1410;--card:#251c16;--inp:#2e231c;--inp2:#3a2d24;
+  --t:#f5e6d0;--t2:#e8d4b8;--td:#c4a882;--tm:#9a7d5a;
+  --br:#4a3828;--brs:#2e231c;--hov:rgba(255,220,150,.08);
+  --sh:0 20px 40px -10px rgba(0,0,0,.6);
+}
+html,body{overscroll-behavior-y:contain;background:var(--bg);color:var(--t);}
+body{font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;}
+.tf{font-family:'Playfair Display',serif;}
+.card{background:var(--card);border:1px solid var(--br);border-radius:1.5rem;transition:box-shadow .3s,transform .3s;}
+.card:hover{transform:translateY(-4px);box-shadow:var(--sh);}
+.inp{background:var(--inp);border:1px solid var(--br);border-radius:.875rem;padding:.75rem 1.25rem;color:var(--t);width:100%;outline:none;transition:border-color .2s;}
+.inp:focus{border-color:#f59e0b;}
+select.inp option{background:var(--card);}
+.btn{border-radius:.875rem;font-weight:600;cursor:pointer;transition:opacity .2s,transform .15s;user-select:none;}
+.btn:active{transform:scale(.97);}
+.btn-amber{background:linear-gradient(135deg,#f59e0b,#f97316);color:#18181b;}
+.btn-amber:hover{opacity:.9;}
+.btn-emerald{background:#059669;color:#fff;}
+.btn-emerald:hover{background:#047857;}
+.btn-ghost{background:var(--hov);color:var(--t);}
+.btn-ghost:hover{background:var(--inp2);}
+.btn-danger{background:rgba(239,68,68,.1);color:#f87171;}
+.btn-danger:hover{background:rgba(239,68,68,.2);}
+.hs{display:none;}
+.nav-i{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.5rem;border-radius:1.5rem;cursor:pointer;transition:background .2s,color .2s;color:var(--td);width:100%;text-align:left;}
+.nav-i:hover{background:var(--hov);}
+.nav-i.on{background:rgba(245,158,11,.12);color:#fbbf24;}
+.fade{animation:fadeUp .35s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.toggle{position:relative;width:48px;height:28px;background:var(--inp2);border-radius:99px;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:var(--td);border-radius:99px;transition:transform .2s,background .2s;}
+.toggle.on{background:linear-gradient(135deg,#f59e0b,#f97316);}
+.toggle.on::after{transform:translateX(20px);background:#fff;}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;background:var(--inp2);border-radius:99px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(245,158,11,.4);}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:50%;cursor:pointer;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:var(--inp2);border-radius:6px;}
+:focus-visible{outline:2px solid #f59e0b;outline-offset:2px;border-radius:6px;}
+/* Skill bar */
+.skill-bar{height:8px;background:var(--inp2);border-radius:99px;overflow:hidden;}
+.skill-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+/* Cal */
+.cal-c{aspect-ratio:1;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.9rem;border:1.5px solid transparent;transition:all .15s;}
+.cal-c:not(.cal-e):hover{background:var(--hov);}
+.cal-c.today{border-color:#f59e0b;color:#fbbf24;font-weight:700;}
+.cal-c.sel{background:rgba(245,158,11,.15);color:#fbbf24;font-weight:700;}
+.cal-c.cal-e{opacity:.15;cursor:default;}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:#10b981;}
+/* Link card status colors */
+.s-later{color:#3b82f6;}.s-watch{color:#8b5cf6;}.s-done{color:#10b981;}.s-imp{color:#f59e0b;}.s-arch{color:#6b7280;}
+/* Notif popup */
+.notif-popup{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(20px);z-index:60;max-width:380px;width:90%;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none;}
+.notif-popup.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+/* Layout */
+.shell{display:flex;height:100vh;}
+.sidebar{width:280px;background:var(--card);border-right:1px solid var(--brs);display:flex;flex-direction:column;flex-shrink:0;}
+.main{flex:1;overflow-y:auto;}
+.page{padding:2.5rem;}
+.bot-nav{display:none;}
+@media(max-width:900px){
+  .shell{flex-direction:column;height:auto;min-height:100vh;}
+  .sidebar{width:100%;flex-direction:row;align-items:center;padding:.6rem 1rem;gap:.5rem;position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);}
+  .sb-brand{flex:1;padding:0;border:none;}
+  .sb-brand h1{font-size:1.4rem;}
+  .sb-brand p{display:none;}
+  .sb-nav{display:none;}
+  .sb-foot{padding:0;border:none;flex-shrink:0;}
+  .sb-foot .ft-label{display:none;}
+  .main{padding-bottom:5.5rem;}
+  .page{padding:1rem;}
+  .page .pt{font-size:1.75rem!important;}
+  .bot-nav{display:grid;grid-template-columns:repeat(7,1fr);position:fixed;bottom:0;left:0;right:0;z-index:40;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--brs);padding:.4rem .2rem calc(.4rem + env(safe-area-inset-bottom));}
+  .bot-nav .nav-i{flex-direction:column;gap:1px;padding:.4rem .1rem;border-radius:10px;font-size:.6rem;justify-content:center;}
+  .bot-nav .nav-i i{font-size:1.1rem;}
+  .bot-nav .nav-i span{font-size:.6rem;}
+}
+.text-ink{color:#18181b!important;}
+[data-theme=light] .text-amber-400{color:#d97706!important;}
+[data-theme=light] .text-emerald-400{color:#059669!important;}
+[data-theme=warm] .text-amber-400{color:#e8a020!important;}
+[data-theme=warm] .text-emerald-400{color:#4ade80!important;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sb-brand p-6 border-b" style="border-color:var(--brs)">
+    <h1 id="app-name" class="text-3xl tf bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Success Diary</h1>
+    <p id="app-tag" class="text-sm" style="color:var(--td)">Дневник роста и побед</p>
+  </div>
+  <nav class="sb-nav flex-1 p-3 space-y-1 overflow-y-auto">
+    <button type="button" data-page="dashboard" class="nav-i on"><i class="fa-solid fa-house w-5 text-center"></i><span data-i="nav.home">Главная</span></button>
+    <button type="button" data-page="diary"     class="nav-i"><i class="fa-solid fa-book w-5 text-center"></i><span data-i="nav.diary">Дневник</span></button>
+    <button type="button" data-page="calendar"  class="nav-i"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span data-i="nav.calendar">Календарь</span></button>
+    <button type="button" data-page="stats"     class="nav-i"><i class="fa-solid fa-chart-column w-5 text-center"></i><span data-i="nav.stats">Статистика</span></button>
+    <button type="button" data-page="skills"    class="nav-i"><i class="fa-solid fa-brain w-5 text-center"></i><span data-i="nav.skills">Навыки</span></button>
+    <button type="button" data-page="links"     class="nav-i"><i class="fa-solid fa-link w-5 text-center"></i><span data-i="nav.links">Ссылки</span></button>
+    <button type="button" data-page="mentor"    class="nav-i"><i class="fa-solid fa-lightbulb w-5 text-center"></i><span data-i="nav.mentor">Наставник</span></button>
+  </nav>
+  <!-- Lang switcher -->
+  <div class="px-4 pb-2 flex gap-2">
+    <button type="button" data-lang="ru" class="lang-btn flex-1 py-2 rounded-xl text-sm font-semibold btn btn-ghost">🇷🇺 RU</button>
+    <button type="button" data-lang="uz" class="lang-btn flex-1 py-2 rounded-xl text-sm font-semibold btn btn-ghost">🇺🇿 UZ</button>
+    <button type="button" data-lang="en" class="lang-btn flex-1 py-2 rounded-xl text-sm font-semibold btn btn-ghost">🇬🇧 EN</button>
+  </div>
+  <div class="sb-foot p-4 border-t flex items-center gap-3" style="border-color:var(--brs)">
+    <div id="avatar" class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-xl font-bold text-zinc-950 flex-shrink-0">А</div>
+    <div class="ft-label min-w-0 flex-1">
+      <div id="uname" class="font-semibold truncate">Артур</div>
+      <div id="urank" class="text-xs text-emerald-400 truncate">Уровень 1</div>
+    </div>
+    <button type="button" id="settings-btn" class="w-9 h-9 rounded-xl btn btn-ghost flex items-center justify-center flex-shrink-0" aria-label="Settings">
+      <i class="fa-solid fa-gear"></i>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+<!-- ── DASHBOARD ── -->
+<section id="page-dashboard" class="page">
+  <div class="flex flex-wrap gap-3 justify-between items-start mb-6">
+    <div>
+      <h2 class="tf pt" style="font-size:2.5rem">👋 <span data-i="dash.hi">Привет,</span> <span id="uname2">Артур</span></h2>
+      <p id="streak-p" class="text-emerald-400 text-lg mt-1">🌱 Начни свой путь сегодня</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button type="button" id="quote-popup-btn" class="btn btn-ghost px-4 py-2 text-sm"><i class="fa-solid fa-bell mr-1"></i><span data-i="dash.qpopup">Цитата</span></button>
+      <button type="button" onclick="exportData()" class="btn btn-ghost px-4 py-2 text-sm"><i class="fa-solid fa-download mr-1"></i>Export</button>
+    </div>
+  </div>
+  <!-- Quick add -->
+  <div class="card p-6 mb-6">
+    <div class="flex flex-wrap justify-between gap-3 mb-4 items-center">
+      <h3 class="text-xl font-semibold" data-i="dash.addTitle">Запиши победу дня</h3>
+      <button type="button" id="voice-btn" class="btn px-4 py-2 text-sm" style="background:rgba(239,68,68,.1);color:#f87171">
+        <i class="fa-solid fa-microphone mr-1"></i><span data-i="dash.voice">Голос</span>
+      </button>
+    </div>
+    <form id="qform" class="flex flex-col sm:flex-row gap-3">
+      <input id="qi" type="text" maxlength="400" class="inp flex-1" data-ph="dash.qph" placeholder="Что сегодня получилось?">
+      <button type="submit" class="btn btn-amber px-7 py-3"><span data-i="dash.save">Сохранить</span></button>
+    </form>
+    <p id="vs" class="text-sm mt-2 hidden" style="color:var(--td)"></p>
+  </div>
+  <!-- Quote -->
+  <div id="qcard" tabindex="0" role="button" class="card p-8 mb-6 cursor-pointer border-amber-500/30">
+    <p id="qt" class="text-xl italic leading-relaxed"></p>
+    <p id="qa" class="text-amber-400 text-right mt-4 text-sm"></p>
+    <p class="text-xs mt-3" style="color:var(--tm)"><i class="fa-solid fa-hand-pointer mr-1"></i><span data-i="dash.tapQuote">Нажми для следующей</span></p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div>
+      <h3 class="font-semibold text-lg mb-3" data-i="dash.recent">Недавние достижения</h3>
+      <div id="recent" class="space-y-3"></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-semibold text-lg mb-3" data-i="dash.week">За 7 дней</h3>
+      <canvas id="wChart" height="200"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ── DIARY ── -->
+<section id="page-diary" class="page hs">
+  <h2 class="tf pt mb-5" style="font-size:2rem" data-i="diary.title">Дневник достижений</h2>
+  <div class="card p-6 mb-6">
+    <h3 class="font-semibold text-lg mb-4" data-i="diary.new">Новое достижение</h3>
+    <form id="dform" class="space-y-3">
+      <input id="dtitle" type="text" maxlength="120" class="inp" data-ph="diary.titlePh" placeholder="Название">
+      <textarea id="dtext" rows="3" maxlength="2000" class="inp" data-ph="diary.textPh" placeholder="Подробнее..."></textarea>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <select id="dcat" class="inp"></select>
+        <label class="flex flex-col gap-1">
+          <span class="text-sm" style="color:var(--td)"><span data-i="diary.pride">Гордость</span>: <span id="pv">8</span>/10</span>
+          <input id="dpride" type="range" min="1" max="10" value="8">
+        </label>
+        <button type="submit" class="btn btn-emerald py-3"><span data-i="diary.save">Сохранить</span></button>
+      </div>
+    </form>
+  </div>
+  <div class="flex flex-wrap gap-3 mb-4">
+    <input id="dsearch" type="search" class="inp flex-1" style="min-width:200px" data-ph="diary.search" placeholder="🔍 Поиск...">
+    <select id="dfilter" class="inp" style="min-width:160px"></select>
+  </div>
+  <div id="all-entries" class="space-y-4"></div>
+</section>
+
+<!-- ── CALENDAR ── -->
+<section id="page-calendar" class="page hs">
+  <h2 class="tf pt mb-5" style="font-size:2rem" data-i="cal.title">Календарь</h2>
+  <div class="card p-5 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <button type="button" id="cp" class="btn btn-ghost w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+      <div class="text-center">
+        <div id="cm" class="text-xl font-semibold"></div>
+        <button type="button" id="ct" class="text-xs text-amber-400 hover:underline mt-1" data-i="cal.today">Сегодня</button>
+      </div>
+      <button type="button" id="cn" class="btn btn-ghost w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div id="cwh" class="grid grid-cols-7 gap-1 mb-1 text-center text-xs pb-2" style="color:var(--tm);border-bottom:1px solid var(--brs)"></div>
+    <div id="cg" class="grid grid-cols-7 gap-1"></div>
+  </div>
+  <div id="cday" class="space-y-4"></div>
+</section>
+
+<!-- ── STATS ── -->
+<section id="page-stats" class="page hs">
+  <h2 class="tf pt mb-5" style="font-size:2rem" data-i="stats.title">Статистика</h2>
+  <div id="stat-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card p-5">
+      <h3 class="font-semibold mb-3" data-i="stats.byDay">По дням недели</h3>
+      <canvas id="achChart"></canvas>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-semibold mb-3" data-i="stats.byCat">По категориям</h3>
+      <canvas id="catChart"></canvas>
+    </div>
+  </div>
+  <div class="card p-5 mt-6">
+    <h3 class="font-semibold mb-3" data-i="stats.skillsRadar">Радар навыков</h3>
+    <canvas id="radarChart" height="300"></canvas>
+  </div>
+</section>
+
+<!-- ── SKILLS ── -->
+<section id="page-skills" class="page hs">
+  <h2 class="tf pt mb-2" style="font-size:2rem" data-i="skills.title">Мои Навыки</h2>
+  <p class="mb-5" style="color:var(--td)" data-i="skills.sub">Отслеживай рост психологических навыков и харизмы</p>
+  <div id="skills-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+  <div class="card p-5">
+    <h3 class="font-semibold mb-3" data-i="skills.history">История оценок</h3>
+    <canvas id="skillHistChart" height="220"></canvas>
+  </div>
+</section>
+
+<!-- ── LINKS ── -->
+<section id="page-links" class="page hs">
+  <h2 class="tf pt mb-2" style="font-size:2rem" data-i="links.title">Мои Ссылки</h2>
+  <p class="mb-4" style="color:var(--td)" data-i="links.sub">YouTube, статьи, подкасты — всё в одном месте</p>
+  <div class="flex flex-wrap gap-3 mb-5">
+    <button type="button" id="addlink-btn" class="btn btn-amber px-5 py-2.5"><i class="fa-solid fa-plus mr-2"></i><span data-i="links.add">Добавить ссылку</span></button>
+    <div class="flex gap-2 flex-wrap" id="link-tabs"></div>
+  </div>
+  <div id="links-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
+
+<!-- ── MENTOR ── -->
+<section id="page-mentor" class="page hs">
+  <h2 class="tf pt mb-5" style="font-size:2rem" data-i="mentor.title">Наставник</h2>
+  <div id="mcrd" tabindex="0" role="button" class="card p-10 text-center cursor-pointer mb-6 border-amber-500/20">
+    <p id="mq" class="text-2xl italic leading-relaxed"></p>
+    <p id="ma" class="mt-6 text-amber-400"></p>
+    <p class="text-xs mt-4" style="color:var(--tm)"><i class="fa-solid fa-hand-pointer mr-1"></i><span data-i="dash.tapQuote">Нажми для следующей</span></p>
+  </div>
+  <div class="card p-5 mb-5">
+    <h4 class="font-semibold mb-3" data-i="mentor.add">Добавить цитату</h4>
+    <form id="aqform" class="grid grid-cols-1 sm:grid-cols-[1fr_200px_auto] gap-3">
+      <input id="aqt" maxlength="400" class="inp" data-ph="mentor.qph" placeholder="Текст цитаты">
+      <input id="aqa" maxlength="80" class="inp" data-ph="mentor.aph" placeholder="Автор">
+      <button type="submit" class="btn btn-amber px-5 py-2.5"><span data-i="mentor.addBtn">Добавить</span></button>
+    </form>
+  </div>
+  <div id="ql" class="space-y-3"></div>
+</section>
+
+</main>
+</div>
+
+<!-- Bottom nav (mobile) -->
+<nav class="bot-nav">
+  <button type="button" data-page="dashboard" class="nav-i on"><i class="fa-solid fa-house"></i><span data-i="nav.home">Главная</span></button>
+  <button type="button" data-page="diary"     class="nav-i"><i class="fa-solid fa-book"></i><span data-i="nav.diary">Дневник</span></button>
+  <button type="button" data-page="calendar"  class="nav-i"><i class="fa-solid fa-calendar-days"></i><span data-i="nav.calendar">Кал.</span></button>
+  <button type="button" data-page="stats"     class="nav-i"><i class="fa-solid fa-chart-column"></i><span data-i="nav.stats">Стат.</span></button>
+  <button type="button" data-page="skills"    class="nav-i"><i class="fa-solid fa-brain"></i><span data-i="nav.skills">Навыки</span></button>
+  <button type="button" data-page="links"     class="nav-i"><i class="fa-solid fa-link"></i><span data-i="nav.links">Ссылки</span></button>
+  <button type="button" data-page="mentor"    class="nav-i"><i class="fa-solid fa-lightbulb"></i><span data-i="nav.mentor">Ментор</span></button>
+</nav>
+
+<!-- Quote popup -->
+<div id="qpopup" class="notif-popup">
+  <div class="card p-5 shadow-2xl" style="border-color:#f59e0b55">
+    <div class="flex justify-between items-start gap-3 mb-2">
+      <span class="text-amber-400 text-sm font-semibold">✨ <span data-i="popup.title">Мысль для тебя</span></span>
+      <button type="button" id="qpclose" class="text-sm" style="color:var(--td)">✕</button>
+    </div>
+    <p id="qpt" class="italic leading-relaxed"></p>
+    <p id="qpa" class="text-amber-400 text-sm text-right mt-2"></p>
+  </div>
+</div>
+
+<div id="toast-wrap" class="fixed bottom-24 right-4 sm:right-6 z-50 space-y-2"></div>
+<div id="modal-wrap"></div>
+
+<script>
+"use strict";
+// ══════════════════════════════════════════
+// TRANSLATIONS
+// ══════════════════════════════════════════
+const LANG={
+ru:{
+  appName:"Success Diary",appTag:"Дневник личностного роста",
+  nav:{home:"Главная",diary:"Дневник",calendar:"Календарь",stats:"Статистика",skills:"Навыки",links:"Ссылки",mentor:"Наставник"},
+  dash:{hi:"Привет,",addTitle:"Запиши победу дня",voice:"Голос",qph:"Что сегодня получилось?",save:"Сохранить",tapQuote:"Нажми для следующей",qpopup:"Цитата",recent:"Недавние достижения",week:"За 7 дней"},
+  diary:{title:"Дневник достижений",new:"Новое достижение",titlePh:"Название достижения",textPh:"Подробное описание...",pride:"Гордость",save:"Сохранить",search:"🔍 Поиск...",all:"Все категории",edit:"Изменить",del:"Удалить",empty:"Записей пока нет — запиши первую победу!",notFound:"Ничего не найдено"},
+  cal:{title:"Календарь достижений",today:"Сегодня",empty:"В этот день записей нет",noSel:"Выбери день в календаре",wdays:["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]},
+  stats:{title:"Статистика",byDay:"По дням недели",byCat:"По категориям",skillsRadar:"Радар навыков",total:"Всего записей",streak:"Серия дней",avgPride:"Средняя гордость",skills:"Навыков освоено"},
+  skills:{title:"Мои Навыки",sub:"Отслеживай рост психологических навыков и харизмы",assess:"Оценить сейчас",last:"Последняя оценка:",noAssess:"Ещё нет оценок",tips:"Упражнения",history:"История оценок",scoreLabel:"Оценка (1–10)",noteLbl:"Заметка (необязательно)",saveSc:"Сохранить оценку",
+    names:{confidence:"Уверенность",charisma:"Харизма",communication:"Общение",empathy:"Эмпатия",leadership:"Лидерство",resilience:"Устойчивость",publicSpeak:"Публичные выступления",discipline:"Самодисциплина",positivity:"Позитивность",social:"Социальный IQ"},
+    tips:{
+      confidence:["Смотри на себя в зеркало 2 минуты в день и называй три своих достоинства","Каждый день делай одно действие, которого немного боишься","Записывай три успеха перед сном"],
+      charisma:["Улыбайся первым при каждом контакте — это мощнейший сигнал","Запоминай имена и используй их в разговоре","Практикуй «присутствие»: при разговоре убирай телефон"],
+      communication:["Задавай открытые вопросы (как? почему? что ты думаешь?)","Практикуй активное слушание — кивай и перефразируй","Пиши одно письмо/сообщение в день осознанно, не наспех"],
+      empathy:["Попробуй объяснить чужую точку зрения лучше, чем её владелец","Читай художественную литературу — это научно улучшает эмпатию","Спрашивай «как ты сейчас?» — и реально слушай ответ"],
+      leadership:["Добровольно берись за организацию любой небольшой задачи в группе","Давай конкретную обратную связь: что хорошо + что улучшить","Читай о лидерах, которых уважаешь — их биографии полны уроков"],
+      resilience:["После неудачи задай вопрос: что я узнал? что сделаю иначе?","Практикуй дыхание 4-7-8 при стрессе (вдох 4с, задержка 7с, выдох 8с)","Веди «дневник благодарности» — 3 вещи в день"],
+      publicSpeak:["Каждый день 3 минуты говори вслух на любую тему","Записывай себя на видео и разбирай: темп, паузы, жесты","Используй метод STAR для ответов: Ситуация, Задача, Действие, Результат"],
+      discipline:["Правило двух минут: если задача < 2 минут — сделай сразу","Веди трекер привычек — визуальный прогресс мотивирует","Планируй вечер накануне — это снижает стресс утром"],
+      positivity:["Утром называй вслух три вещи, которых ждёшь сегодня","Ограничь новостной поток до 15 минут в день","Окружай себя людьми, которые тебя поднимают, а не тянут вниз"],
+      social:["Запоминай один факт о каждом новом знакомом","Практикуй small talk — начинай разговор с незнакомцами","Анализируй социальные ситуации после: что сработало, что — нет"]
+    }
+  },
+  links:{title:"Мои Ссылки",sub:"YouTube, статьи, подкасты — всё в одном месте",add:"Добавить ссылку",
+    statuses:{later:"Посмотреть позже",watching:"Смотрю сейчас",done:"Просмотрено",important:"Важное",archive:"Архив"},
+    urlLbl:"URL ссылки",catLbl:"Куда добавить?",noteLbl:"Заметка (необязательно)",titleLbl:"Название (необязательно)",
+    moveTo:"Переместить в...",del:"Удалить",open:"Открыть",empty:"Ссылок пока нет",all:"Все"},
+  mentor:{title:"Наставник",add:"Добавить цитату",qph:"Текст цитаты",aph:"Автор",addBtn:"Добавить",edit:"Изменить",del:"Удалить",empty:"Цитат пока нет"},
+  popup:{title:"Мысль для тебя"},
+  settings:{title:"Настройки",name:"Имя",theme:"Тема",dark:"Тёмная",light:"Светлая",warm:"Тёплая",lang:"Язык",reminder:"Напоминание",reminderDesc:"Если до указанного времени нет записей — пришлю уведомление",quotePopup:"Всплывающие цитаты",popupInterval:"Интервал (минуты)",export:"Экспорт данных",import:"Импорт данных",clearAll:"Очистить всё",save:"Сохранить",cancel:"Отмена",confirmClear:"Удалить ВСЕ данные? Это необратимо.",done:"Сохранено"},
+  toast:{saved:"✅ Сохранено",deleted:"🗑 Удалено",exported:"📤 Данные экспортированы",imported:"📥 Данные загружены",error:"❌ Ошибка",added:"✅ Добавлено"},
+  confirm:{yes:"Да",no:"Отмена",delete:"Удалить"},
+  levels:["Новичок","Ученик","Практикант","Воин роста","Мастер","Эксперт","Чемпион","Наставник","Легенда","Просветлённый"],
+  streak:{zero:"Начни свой путь сегодня 🌱",one:"1 день подряд 🔥",few:"дня подряд 🔥",many:"дней подряд 🔥"},
+  cats:{all:"Все категории",Уверенность:"💪 Уверенность",Продуктивность:"⚡ Продуктивность",Здоровье:"❤️ Здоровье",Спорт:"🏋️ Спорт",Социализация:"👥 Социализация",Обучение:"📚 Обучение",Творчество:"🎨 Творчество",Карьера:"🚀 Карьера",Финансы:"💰 Финансы",Семья:"👨‍👩‍👧 Семья",Хобби:"🎮 Хобби",Харизма:"✨ Харизма",Лидерство:"👑 Лидерство"},
+  ok:"OK",
+},
+uz:{
+  appName:"Success Diary",appTag:"Shaxsiy o'sish kundaligi",
+  nav:{home:"Bosh sahifa",diary:"Kundalik",calendar:"Taqvim",stats:"Statistika",skills:"Ko'nikmalar",links:"Havolalar",mentor:"Murabbiy"},
+  dash:{hi:"Salom,",addTitle:"Bugungi g'alabani yoz",voice:"Ovoz",qph:"Bugun nima bo'ldi?",save:"Saqlash",tapQuote:"Keyingisi uchun bosing",qpopup:"Iqtibos",recent:"So'nggi yutuqlar",week:"7 kun"},
+  diary:{title:"Yutuqlar kundaligi",new:"Yangi yutuq",titlePh:"Yutuq nomi",textPh:"Batafsil...",pride:"Faxr",save:"Saqlash",search:"🔍 Qidirish...",all:"Barcha toifalar",edit:"Tahrirlash",del:"O'chirish",empty:"Hozircha yozuvlar yo'q!",notFound:"Hech narsa topilmadi"},
+  cal:{title:"Yutuqlar taqvimi",today:"Bugun",empty:"Bu kunda yozuvlar yo'q",noSel:"Taqvimdan kunni tanlang",wdays:["Du","Se","Ch","Pa","Ju","Sh","Ya"]},
+  stats:{title:"Statistika",byDay:"Hafta kunlari bo'yicha",byCat:"Toifalar bo'yicha",skillsRadar:"Ko'nikmalar radari",total:"Jami yozuvlar",streak:"Ketma-ket kunlar",avgPride:"O'rtacha faxr",skills:"O'zlashtirilgan ko'nikmalar"},
+  skills:{title:"Ko'nikmalarim",sub:"Psixologik ko'nikmalar va xarizmasini kuzating",assess:"Hozir baholash",last:"Oxirgi baho:",noAssess:"Baholashlar yo'q",tips:"Mashqlar",history:"Baholash tarixi",scoreLabel:"Baho (1–10)",noteLbl:"Eslatma (ixtiyoriy)",saveSc:"Bahoni saqlash",
+    names:{confidence:"O'ziga ishonch",charisma:"Xarizma",communication:"Muloqot",empathy:"Empatiya",leadership:"Yetakchilik",resilience:"Chidamlilik",publicSpeak:"Ommaviy nutq",discipline:"O'z-o'zini intizom",positivity:"Musbat fikrlash",social:"Ijtimoiy IQ"},
+    tips:{
+      confidence:["Har kuni ko'zguda o'z fazilatlaringni ayt","Har kuni ozgina qo'rqadigan ish qil","Uxlashdan oldin 3 ta muvaffaqiyatingni yoz"],
+      charisma:["Har uchrashuvda birinchi bo'lib jilmay","Ismlarni yod ol va suhbatda ishlat","Telefonsiz suhbatlash — to'liq e'tibor ber"],
+      communication:["Ochiq savollar ber (qanday? nima uchun?)","Faol tinglash: bosh irg'a va qayta ayt","Har kuni bitta xabar/maktubni ongli yoz"],
+      empathy:["Boshqa odamning nuqtai nazarini tushuntirishga harakat qil","Badiiy adabiyot o'qi — bu empatiyani rivojlantiradi","«Qanday ahvol?» deb so'ra va haqiqatan tinglа"],
+      leadership:["Guruhda kichik vazifalarni ixtiyoriy boshqar","Aniq fikr-mulohaza ber: yaxshi + yaxshilanadigan","O'zingga o'xshagan liderlarga o'rgan"],
+      resilience:["Muvaffaqiyatsizlikdan so'ng: nima o'rgandim?","Stress vaqtida 4-7-8 nafas qil","Har kuni 3 ta minnatdorchilik yoz"],
+      publicSpeak:["Har kuni 3 daqiqa ovoz chiqarib gapir","O'zingni videoga olish va tahlil qil","STAR usulini qo'lla: Vaziyat, Vazifa, Harakat, Natija"],
+      discipline:["2 daqiqa qoidasi: agar < 2 daqiqa bo'lsa — hoziroq qil","Odatlar kuzatuvchisini yurit","Kechqurun ertangi kunni rejalashtir"],
+      positivity:["Ertalab 3 ta kutayotgan narsangni ayt","Yangiliklarni 15 daqiqaga chekla","Seni ko'taradigan odamlar bilan bo'l"],
+      social:["Har yangi tanishdan bitta fakt yod ol","Notanishlar bilan small talk qil","Ijtimoiy vaziyatlarni tahlil qil"]
+    }
+  },
+  links:{title:"Mening havolalarim",sub:"YouTube, maqolalar, podkastlar",add:"Havola qo'shish",
+    statuses:{later:"Keyinroq ko'rish",watching:"Hozir ko'ryapman",done:"Ko'rildi",important:"Muhim",archive:"Arxiv"},
+    urlLbl:"Havola URL",catLbl:"Qayerga qo'shish?",noteLbl:"Eslatma (ixtiyoriy)",titleLbl:"Sarlavha (ixtiyoriy)",
+    moveTo:"Ko'chirish...",del:"O'chirish",open:"Ochish",empty:"Havolalar yo'q",all:"Hammasi"},
+  mentor:{title:"Murabbiy",add:"Iqtibos qo'shish",qph:"Iqtibos matni",aph:"Muallif",addBtn:"Qo'shish",edit:"Tahrirlash",del:"O'chirish",empty:"Hozircha iqtiboslar yo'q"},
+  popup:{title:"Siz uchun fikr"},
+  settings:{title:"Sozlamalar",name:"Ism",theme:"Mavzu",dark:"Qoʻngʻir",light:"Yorqin",warm:"Issiq",lang:"Til",reminder:"Eslatma",reminderDesc:"Belgilangan vaqtgacha yozuv bo'lmasa, xabar yuboraman",quotePopup:"Qalqib chiquvchi iqtiboslar",popupInterval:"Interval (daqiqa)",export:"Ma'lumotlarni eksport qilish",import:"Ma'lumotlarni import qilish",clearAll:"Hammasini o'chirish",save:"Saqlash",cancel:"Bekor qilish",confirmClear:"BARCHA ma'lumotlarni o'chirib tashlansinmi?",done:"Saqlandi"},
+  toast:{saved:"✅ Saqlandi",deleted:"🗑 O'chirildi",exported:"📤 Eksport qilindi",imported:"📥 Yuklandi",error:"❌ Xato",added:"✅ Qo'shildi"},
+  confirm:{yes:"Ha",no:"Bekor",delete:"O'chirish"},
+  levels:["Yangi boshlovchi","Talaba","Mashqchi","O'sish jangchisi","Usta","Ekspert","Chempion","Murabbiy","Afsona","Ma'rifatli"],
+  streak:{zero:"Bugun yo'lingni boshlang 🌱",one:"1 kun ketma-ket 🔥",few:"kun ketma-ket 🔥",many:"kun ketma-ket 🔥"},
+  cats:{all:"Barcha toifalar",Уверенность:"💪 Ishonch",Продуктивность:"⚡ Mahsuldorlik",Здоровье:"❤️ Sog'liq",Спорт:"🏋️ Sport",Социализация:"👥 Ijtimoiylashuv",Обучение:"📚 O'rganish",Творчество:"🎨 Ijodkorlik",Карьера:"🚀 Martaba",Финансы:"💰 Moliya",Семья:"👨‍👩‍👧 Oila",Хобби:"🎮 Hobby",Харизма:"✨ Xarizma",Лидерство:"👑 Yetakchilik"},
+  ok:"OK",
+},
+en:{
+  appName:"Success Diary",appTag:"Personal growth journal",
+  nav:{home:"Home",diary:"Diary",calendar:"Calendar",stats:"Stats",skills:"Skills",links:"Links",mentor:"Mentor"},
+  dash:{hi:"Hello,",addTitle:"Log today's win",voice:"Voice",qph:"What went well today?",save:"Save",tapQuote:"Tap for next quote",qpopup:"Quote",recent:"Recent achievements",week:"Last 7 days"},
+  diary:{title:"Achievement Diary",new:"New achievement",titlePh:"Achievement title",textPh:"Detailed description...",pride:"Pride",save:"Save",search:"🔍 Search...",all:"All categories",edit:"Edit",del:"Delete",empty:"No entries yet — log your first win!",notFound:"Nothing found"},
+  cal:{title:"Achievement Calendar",today:"Today",empty:"No entries on this day",noSel:"Select a day in the calendar",wdays:["Mo","Tu","We","Th","Fr","Sa","Su"]},
+  stats:{title:"Statistics",byDay:"By day of week",byCat:"By category",skillsRadar:"Skills radar",total:"Total entries",streak:"Day streak",avgPride:"Avg pride score",skills:"Skills practiced"},
+  skills:{title:"My Skills",sub:"Track growth of psychological skills & charisma",assess:"Assess now",last:"Last score:",noAssess:"No assessments yet",tips:"Exercises",history:"Score history",scoreLabel:"Score (1–10)",noteLbl:"Note (optional)",saveSc:"Save score",
+    names:{confidence:"Confidence",charisma:"Charisma",communication:"Communication",empathy:"Empathy",leadership:"Leadership",resilience:"Resilience",publicSpeak:"Public Speaking",discipline:"Self-Discipline",positivity:"Positivity",social:"Social IQ"},
+    tips:{
+      confidence:["Look in the mirror for 2 min daily and name three strengths","Do one thing each day that scares you a little","Write three wins before sleeping"],
+      charisma:["Smile first in every interaction — it's the most powerful signal","Remember names and use them in conversation","Practice presence: put your phone away during talks"],
+      communication:["Ask open questions (how? why? what do you think?)","Practice active listening — nod and paraphrase","Write one intentional message/email per day"],
+      empathy:["Try to explain someone else's view better than they can","Read fiction — it scientifically improves empathy","Ask 'how are you doing?' — and really listen"],
+      leadership:["Volunteer to organize any small group task","Give specific feedback: what's good + what to improve","Study leaders you admire — their biographies are full of lessons"],
+      resilience:["After failure ask: what did I learn? what will I do differently?","Practice 4-7-8 breathing under stress","Keep a gratitude journal — 3 things per day"],
+      publicSpeak:["Speak aloud on any topic for 3 min daily","Record yourself and analyze: pace, pauses, gestures","Use STAR for answers: Situation, Task, Action, Result"],
+      discipline:["Two-minute rule: if task < 2 min — do it now","Keep a habit tracker — visual progress motivates","Plan the night before — it reduces morning stress"],
+      positivity:["In the morning name three things you're looking forward to","Limit news consumption to 15 min per day","Surround yourself with people who lift you up"],
+      social:["Remember one fact about each new person you meet","Practice small talk — start conversations with strangers","Analyze social situations after: what worked, what didn't"]
+    }
+  },
+  links:{title:"My Links",sub:"YouTube, articles, podcasts — all in one place",add:"Add link",
+    statuses:{later:"Watch later",watching:"Watching now",done:"Watched",important:"Important",archive:"Archive"},
+    urlLbl:"Link URL",catLbl:"Add to category",noteLbl:"Note (optional)",titleLbl:"Title (optional)",
+    moveTo:"Move to...",del:"Delete",open:"Open",empty:"No links yet",all:"All"},
+  mentor:{title:"Mentor",add:"Add quote",qph:"Quote text",aph:"Author",addBtn:"Add",edit:"Edit",del:"Delete",empty:"No quotes yet"},
+  popup:{title:"A thought for you"},
+  settings:{title:"Settings",name:"Name",theme:"Theme",dark:"Dark",light:"Light",warm:"Warm",lang:"Language",reminder:"Daily reminder",reminderDesc:"If no entry by the set time, I'll send a notification",quotePopup:"Quote popups",popupInterval:"Interval (minutes)",export:"Export data",import:"Import data",clearAll:"Clear all data",save:"Save",cancel:"Cancel",confirmClear:"Delete ALL data? This is irreversible.",done:"Saved"},
+  toast:{saved:"✅ Saved",deleted:"🗑 Deleted",exported:"📤 Data exported",imported:"📥 Data loaded",error:"❌ Error",added:"✅ Added"},
+  confirm:{yes:"Yes",no:"Cancel",delete:"Delete"},
+  levels:["Beginner","Learner","Apprentice","Growth Warrior","Master","Expert","Champion","Mentor","Legend","Enlightened"],
+  streak:{zero:"Start your path today 🌱",one:"1 day in a row 🔥",few:"days in a row 🔥",many:"days in a row 🔥"},
+  cats:{all:"All categories",Уверенность:"💪 Confidence",Продуктивность:"⚡ Productivity",Здоровье:"❤️ Health",Спорт:"🏋️ Sport",Социализация:"👥 Socializing",Обучение:"📚 Learning",Творчество:"🎨 Creativity",Карьера:"🚀 Career",Финансы:"💰 Finance",Семья:"👨‍👩‍👧 Family",Хобби:"🎮 Hobby",Харизма:"✨ Charisma",Лидерство:"👑 Leadership"},
+  ok:"OK",
+}};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const LS="mpv3";
+const DEF_STATE={
+  lang:"ru",theme:"dark",username:"Артур",
+  entries:[],quotes:[
+    {id:1,text:"Успех — это сумма небольших усилий, повторяемых день за днём.",author:"Роберт Коллиер"},
+    {id:2,text:"Ты сильнее, чем думаешь. Ты храбрее, чем кажется. Ты умнее, чем веришь.",author:"Кристофер Робин"},
+    {id:3,text:"Каждый мастер когда-то был новичком.",author:"Мухаммед Али"},
+    {id:4,text:"The only way to do great work is to love what you do.",author:"Steve Jobs"},
+    {id:5,text:"Bismillah — каждое дело начинается с имени Аллаха.",author:"Народная мудрость"}
+  ],
+  skills:{confidence:[],charisma:[],communication:[],empathy:[],leadership:[],resilience:[],publicSpeak:[],discipline:[],positivity:[],social:[]},
+  links:[],
+  settings:{reminderEnabled:false,reminderTime:"21:00",quotePopup:true,popupIntervalMin:45,lastReminderDate:null,lastPopupTs:0},
+  seenToday:{}
+};
+let S;
+try{
+  const raw=JSON.parse(localStorage.getItem(LS));
+  S=raw?{...DEF_STATE,...raw,settings:{...DEF_STATE.settings,...(raw.settings||{})},skills:{...DEF_STATE.skills,...(raw.skills||{})}}:{...DEF_STATE};
+}catch{S={...JSON.parse(JSON.stringify(DEF_STATE))};}
+const save=()=>localStorage.setItem(LS,JSON.stringify(S));
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+const dayKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const todayKey=()=>dayKey(new Date());
+const fmtDate=(iso,lang)=>{
+  const[y,m,d]=iso.split("-").map(Number);
+  return new Date(y,m-1,d).toLocaleDateString(lang==="ru"?"ru-RU":lang==="uz"?"uz-UZ":"en-US",{day:"numeric",month:"long"});
+};
+const plural=(n,f)=>{const m10=n%10,m100=n%100;if(m10===1&&m100!==11)return f[0];if(m10>=2&&m10<=4&&(m100<12||m100>14))return f[1];return f[2];};
+const yt=url=>{const m=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);return m?m[1]:null;};
+const ytThumb=id=>`https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+const getDomain=url=>{try{return new URL(url).hostname.replace("www.","");}catch{return url;}};
+
+// ══════════════════════════════════════════
+// I18N
+// ══════════════════════════════════════════
+let L=LANG[S.lang]||LANG.ru;
+function t(path){const keys=path.split(".");let v=L;for(const k of keys)v=v?.[k];return v??path;}
+function applyLang(){
+  L=LANG[S.lang]||LANG.ru;
+  document.documentElement.lang=S.lang==="en"?"en":S.lang==="uz"?"uz":"ru";
+  document.querySelectorAll("[data-i]").forEach(el=>{const v=t(el.dataset.i);if(v&&v!==el.dataset.i)el.textContent=v;});
+  document.querySelectorAll("[data-ph]").forEach(el=>{const v=t(el.dataset.ph);if(v&&v!==el.dataset.ph)el.placeholder=v;});
+  document.getElementById("app-name").textContent=L.appName;
+  document.getElementById("app-tag").textContent=L.appTag;
+  document.querySelectorAll(".lang-btn").forEach(b=>{b.classList.toggle("btn-amber",b.dataset.lang===S.lang);b.classList.toggle("btn-ghost",b.dataset.lang!==S.lang);});
+  fillCatSelects();
+  fillLinkTabs();
+}
+
+// ══════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  document.getElementById("meta-tc").content=t==="light"?"#fafaf9":"#09090b";
+}
+applyTheme(S.theme);
+
+// ══════════════════════════════════════════
+// CATEGORIES
+// ══════════════════════════════════════════
+const CAT_KEYS=["Уверенность","Продуктивность","Здоровье","Спорт","Социализация","Обучение","Творчество","Карьера","Финансы","Семья","Хобби","Харизма","Лидерство"];
+const CAT_COLORS={"Уверенность":"#f59e0b","Продуктивность":"#facc15","Здоровье":"#ef4444","Спорт":"#f97316","Социализация":"#3b82f6","Обучение":"#8b5cf6","Творчество":"#ec4899","Карьера":"#06b6d4","Финансы":"#10b981","Семья":"#f43f5e","Хобби":"#6366f1","Харизма":"#a855f7","Лидерство":"#fbbf24"};
+const catLabel=id=>L.cats?.[id]||id;
+const catColor=id=>CAT_COLORS[id]||"#f59e0b";
+
+function fillCatSelects(){
+  const opts=CAT_KEYS.map(k=>`<option value="${esc(k)}">${esc(catLabel(k))}</option>`).join("");
+  const allOpt=`<option value="">${esc(t("diary.all"))}</option>`;
+  const dc=document.getElementById("dcat");if(dc)dc.innerHTML=opts;
+  const df=document.getElementById("dfilter");if(df)df.innerHTML=allOpt+opts;
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+let curPage="dashboard";
+function showPage(pg){
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("hs",p.id!==`page-${pg}`));
+  document.querySelectorAll(".nav-i").forEach(b=>b.classList.toggle("on",b.dataset.page===pg));
+  curPage=pg;
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(pg==="dashboard"){renderRecent();renderWeekChart();}
+  if(pg==="diary"){renderAllEntries();}
+  if(pg==="calendar"){renderCal();}
+  if(pg==="stats"){renderStats();}
+  if(pg==="skills"){renderSkills();}
+  if(pg==="links"){renderLinks();}
+  if(pg==="mentor"){renderQuotesList();}
+}
+document.querySelectorAll(".nav-i").forEach(b=>b.dataset.page&&b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+// ══════════════════════════════════════════
+// PROFILE + STREAK
+// ══════════════════════════════════════════
+function calcStreak(){
+  if(!S.entries.length)return 0;
+  const dates=new Set(S.entries.map(e=>e.date));
+  let streak=0,d=new Date();
+  while(true){
+    const k=dayKey(d);
+    if(dates.has(k)){streak++;d.setDate(d.getDate()-1);}
+    else{if(streak===0&&k===todayKey()){d.setDate(d.getDate()-1);continue;}break;}
+  }
+  return streak;
+}
+function calcLevel(){
+  const totalScore=Object.values(S.skills).reduce((sum,arr)=>sum+(arr.length?arr[arr.length-1].score:0),0);
+  const entryBonus=Math.floor(S.entries.length/5);
+  return Math.min(9,Math.floor((totalScore/10)+entryBonus));
+}
+function applyProfile(){
+  const n=S.username;
+  const lv=calcLevel();
+  document.getElementById("avatar").textContent=(n[0]||"?").toUpperCase();
+  document.getElementById("uname").textContent=n;
+  document.getElementById("uname2").textContent=n;
+  document.getElementById("urank").textContent=`${L.levels[lv]||L.levels[0]} • Ур. ${lv+1}`;
+  const str=calcStreak();
+  const sp=document.getElementById("streak-p");
+  if(str===0)sp.textContent=t("streak.zero");
+  else if(str===1)sp.textContent=t("streak.one");
+  else sp.textContent=`${str} ${S.lang==="en"?t("streak.few"):plural(str,[t("streak.zero").replace(/\D.*/,""),t("streak.few"),t("streak.many")])||t("streak.many")}`;
+  // Simplified:
+  if(str===0)sp.textContent=t("streak.zero");
+  else sp.textContent=`${str} ${str===1&&S.lang==="ru"?"день подряд 🔥":t("streak.few").startsWith("d")?"days in a row 🔥":str>=2&&str<=4?"дня подряд 🔥":"дней подряд 🔥"}`;
+  if(S.lang==="uz")sp.textContent=str===0?t("streak.zero"):`${str} ${t("streak.few")}`;
+  if(S.lang==="en")sp.textContent=str===0?t("streak.zero"):`${str} ${t("streak.many")}`;
+}
+
+// ══════════════════════════════════════════
+// QUOTES
+// ══════════════════════════════════════════
+let qIdx=0;
+function showQuote(){
+  const q=S.quotes[qIdx]||{text:"Добавь свою первую цитату",author:""};
+  document.getElementById("qt").textContent=`"${q.text}"`;
+  document.getElementById("qa").textContent=q.author?`— ${q.author}`:"";
+  document.getElementById("mq").textContent=`"${q.text}"`;
+  document.getElementById("ma").textContent=q.author?`— ${q.author}`:"";
+}
+function nextQuote(){if(!S.quotes.length)return;qIdx=(qIdx+1)%S.quotes.length;showQuote();}
+document.getElementById("qcard").addEventListener("click",nextQuote);
+document.getElementById("qcard").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();nextQuote();}});
+document.getElementById("mcrd").addEventListener("click",nextQuote);
+document.getElementById("mcrd").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();nextQuote();}});
+
+document.getElementById("aqform").addEventListener("submit",e=>{
+  e.preventDefault();
+  const text=document.getElementById("aqt").value.trim();
+  const author=document.getElementById("aqa").value.trim()||"Я";
+  if(!text)return;
+  S.quotes.unshift({id:Date.now(),text,author});
+  save();renderQuotesList();showQuote();e.target.reset();toast(t("toast.added"));
+});
+function renderQuotesList(){
+  const c=document.getElementById("ql");
+  if(!S.quotes.length){c.innerHTML=`<div class="text-center py-10" style="color:var(--tm)">${esc(t("mentor.empty"))}</div>`;return;}
+  c.innerHTML=S.quotes.map(q=>`
+    <div class="card p-5 flex flex-col sm:flex-row gap-4 sm:items-center">
+      <div class="flex-1"><p class="italic">"${esc(q.text)}"</p><p class="text-amber-400 text-sm mt-1">— ${esc(q.author)}</p></div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button type="button" class="btn btn-ghost px-3 py-2 text-sm" onclick="editQuote(${q.id})"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-danger px-3 py-2 text-sm" onclick="delQuote(${q.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join("");
+}
+async function editQuote(id){
+  const q=S.quotes.find(x=>x.id===id);if(!q)return;
+  const nt=await prompt2(t("mentor.qph"),q.text);if(nt===null)return;
+  const na=await prompt2(t("mentor.aph"),q.author);if(na===null)return;
+  q.text=nt.trim()||q.text;q.author=na.trim()||q.author;
+  save();renderQuotesList();showQuote();toast(t("toast.saved"));
+}
+async function delQuote(id){
+  if(!await confirm2(t("confirm.delete")+"?"))return;
+  S.quotes=S.quotes.filter(x=>x.id!==id);
+  if(qIdx>=S.quotes.length)qIdx=0;
+  save();renderQuotesList();showQuote();toast(t("toast.deleted"));
+}
+
+// ══════════════════════════════════════════
+// VOICE INPUT
+// ══════════════════════════════════════════
+let recog=null;
+document.getElementById("voice-btn").addEventListener("click",()=>{
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast(t("toast.error")+" (Voice not supported)","err");return;}
+  if(recog){try{recog.stop();}catch{}}
+  recog=new SR();recog.lang=S.lang==="en"?"en-US":S.lang==="uz"?"uz-UZ":"ru-RU";
+  const vs=document.getElementById("vs");vs.classList.remove("hidden");vs.textContent="🎤 "+t("dash.voice")+"...";
+  recog.onresult=e=>{document.getElementById("qi").value=e.results[0][0].transcript;vs.textContent="✅ OK";setTimeout(()=>vs.classList.add("hidden"),2000);};
+  recog.onerror=()=>{vs.textContent="❌";setTimeout(()=>vs.classList.add("hidden"),2000);};
+  recog.start();
+});
+
+// ══════════════════════════════════════════
+// QUICK ADD
+// ══════════════════════════════════════════
+document.getElementById("qform").addEventListener("submit",e=>{
+  e.preventDefault();
+  const v=document.getElementById("qi").value.trim();if(!v)return;
+  S.entries.unshift({id:Date.now(),date:todayKey(),title:t("dash.addTitle"),text:v,category:"Уверенность",pride:9});
+  save();document.getElementById("qi").value="";
+  renderRecent();renderWeekChart();applyProfile();toast(t("toast.saved"));
+});
+
+// ══════════════════════════════════════════
+// DIARY
+// ══════════════════════════════════════════
+document.getElementById("dpride").addEventListener("input",e=>document.getElementById("pv").textContent=e.target.value);
+document.getElementById("dform").addEventListener("submit",e=>{
+  e.preventDefault();
+  const title=document.getElementById("dtitle").value.trim()||t("dash.addTitle");
+  const text=document.getElementById("dtext").value.trim();if(!text)return;
+  S.entries.unshift({id:Date.now(),date:todayKey(),title,text,category:document.getElementById("dcat").value,pride:+document.getElementById("dpride").value});
+  save();e.target.reset();document.getElementById("pv").textContent="8";document.getElementById("dpride").value=8;
+  renderAllEntries();renderRecent();applyProfile();toast(t("toast.saved"));
+});
+document.getElementById("dsearch").addEventListener("input",renderAllEntries);
+document.getElementById("dfilter").addEventListener("change",renderAllEntries);
+
+function entryHtml(e,compact=false){
+  return `<div class="card p-5${compact?"":" fade"}">
+    <div class="flex justify-between text-sm flex-wrap gap-2">
+      <span style="background:${catColor(e.category)}22;color:${catColor(e.category)};padding:2px 10px;border-radius:99px">${esc(catLabel(e.category))}</span>
+      <span style="color:var(--tm)">${esc(fmtDate(e.date,S.lang))}</span>
+    </div>
+    <div class="font-semibold mt-2 text-base">${esc(e.title)}</div>
+    <p class="mt-1 text-sm" style="color:var(--t2)">${esc(e.text)}</p>
+    <div class="flex justify-between mt-3 items-center flex-wrap gap-2">
+      <span class="text-amber-400 text-sm">★ ${e.pride}/10</span>
+      ${compact?"":
+      `<div class="flex gap-2">
+        <button type="button" class="btn btn-ghost px-3 py-1.5 text-sm" onclick="editEntry(${e.id})"><i class="fa-solid fa-pen mr-1"></i>${esc(t("diary.edit"))}</button>
+        <button type="button" class="btn btn-danger px-3 py-1.5 text-sm" onclick="delEntry(${e.id})"><i class="fa-solid fa-trash mr-1"></i>${esc(t("diary.del"))}</button>
+      </div>`}
+    </div>
+  </div>`;
+}
+function renderRecent(){
+  const c=document.getElementById("recent");
+  if(!S.entries.length){c.innerHTML=`<div class="card p-6 text-center" style="color:var(--tm)">${esc(t("diary.empty"))}</div>`;return;}
+  c.innerHTML=S.entries.slice(0,3).map(e=>entryHtml(e,true)).join("");
+}
+function renderAllEntries(){
+  const c=document.getElementById("all-entries");
+  const q=document.getElementById("dsearch").value.toLowerCase();
+  const cat=document.getElementById("dfilter").value;
+  let list=S.entries;
+  if(cat)list=list.filter(e=>e.category===cat);
+  if(q)list=list.filter(e=>(e.title+" "+e.text).toLowerCase().includes(q));
+  if(!list.length){c.innerHTML=`<div class="card p-8 text-center" style="color:var(--tm)">${esc(S.entries.length?t("diary.notFound"):t("diary.empty"))}</div>`;return;}
+  c.innerHTML=list.map(e=>entryHtml(e)).join("");
+}
+async function editEntry(id){
+  const e=S.entries.find(x=>x.id===id);if(!e)return;
+  const nt=await prompt2(t("diary.titlePh"),e.title);if(nt===null)return;
+  const nd=await prompt2(t("diary.textPh"),e.text);if(nd===null)return;
+  e.title=nt.trim()||e.title;e.text=nd.trim()||e.text;
+  save();renderAllEntries();renderRecent();toast(t("toast.saved"));
+}
+async function delEntry(id){
+  if(!await confirm2(t("confirm.delete")+"?"))return;
+  S.entries=S.entries.filter(x=>x.id!==id);
+  save();renderAllEntries();renderRecent();renderWeekChart();applyProfile();toast(t("toast.deleted"));
+}
+
+// ══════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════
+let calDate=new Date();calDate.setDate(1);
+let selDay=todayKey();
+
+function renderCal(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  const wd=L.cal.wdays;
+  document.getElementById("cwh").innerHTML=wd.map(d=>`<div class="py-1">${d}</div>`).join("");
+  document.getElementById("cm").textContent=calDate.toLocaleDateString(
+    S.lang==="en"?"en-US":S.lang==="uz"?"uz-UZ":"ru-RU",{month:"long",year:"numeric"});
+  const first=new Date(y,m,1);
+  const last=new Date(y,m+1,0);
+  const startDow=(first.getDay()+6)%7;
+  const today=todayKey();
+  const g=document.getElementById("cg");g.innerHTML="";
+  for(let i=0;i<startDow;i++){const d=document.createElement("div");d.className="cal-c cal-e";g.appendChild(d);}
+  for(let day=1;day<=last.getDate();day++){
+    const k=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const cnt=S.entries.filter(e=>e.date===k).length;
+    const btn=document.createElement("button");
+    btn.type="button";btn.className="cal-c"+(k===today?" today":"")+(k===selDay?" sel":"");
+    const dots=cnt?`<span style="display:flex;gap:2px">${Array(Math.min(cnt,3)).fill('<span class="cal-dot"></span>').join("")}</span>`:"";
+    btn.innerHTML=`<span style="font-size:.9rem">${day}</span>${dots}`;
+    btn.setAttribute("aria-label",`${day}`);
+    btn.addEventListener("click",()=>{selDay=k;renderCal();renderCalDay();});
+    g.appendChild(btn);
+  }
+  renderCalDay();
+}
+function renderCalDay(){
+  const c=document.getElementById("cday");
+  const list=S.entries.filter(e=>e.date===selDay);
+  const human=fmtDate(selDay,S.lang);
+  const isToday=selDay===todayKey();
+  if(!list.length){
+    c.innerHTML=`<div class="card p-6 text-center"><div class="font-semibold mb-1">${esc(human)}${isToday?` <span class="text-amber-400 text-sm">(${esc(t("cal.today"))})</span>`:""}</div><div style="color:var(--tm)">${esc(t("cal.empty"))}</div></div>`;return;
+  }
+  c.innerHTML=`<div class="font-semibold mb-3">${esc(human)}${isToday?` <span class="text-amber-400 text-sm">(${esc(t("cal.today"))})</span>`:""} — ${list.length}</div>`+list.map(e=>entryHtml(e,true)).join("");
+}
+document.getElementById("cp").addEventListener("click",()=>{calDate.setMonth(calDate.getMonth()-1);renderCal();});
+document.getElementById("cn").addEventListener("click",()=>{calDate.setMonth(calDate.getMonth()+1);renderCal();});
+document.getElementById("ct").addEventListener("click",()=>{calDate=new Date();calDate.setDate(1);selDay=todayKey();renderCal();});
+
+// ══════════════════════════════════════════
+// STATS / CHARTS
+// ══════════════════════════════════════════
+const charts={};
+function destroyChart(k){if(charts[k]){charts[k].destroy();delete charts[k];}}
+const chartColors={gridColor:"rgba(148,163,184,.1)",tickColor:"#94a3b8"};
+
+function getWeekData(){
+  const days=L.cal.wdays,today=new Date();
+  return{labels:days,data:days.map((_,i)=>{
+    const d=new Date(today);d.setDate(d.getDate()-((today.getDay()+6)%7-i));
+    return S.entries.filter(e=>e.date===dayKey(d)).length;
+  })};
+}
+function renderWeekChart(){
+  const ctx=document.getElementById("wChart");if(!ctx)return;
+  const{labels,data}=getWeekData();
+  destroyChart("week");
+  charts.week=new Chart(ctx,{type:"bar",data:{labels,datasets:[{label:"",data,backgroundColor:"#f59e0b",borderRadius:6}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:chartColors.tickColor},grid:{display:false}},y:{ticks:{color:chartColors.tickColor,precision:0},grid:{color:chartColors.gridColor},beginAtZero:true}}}});
+}
+function renderStats(){
+  // Summary cards
+  const total=S.entries.length;
+  const avgP=total?(S.entries.reduce((s,e)=>s+(+e.pride||0),0)/total).toFixed(1):"—";
+  const str=calcStreak();
+  const skillsUsed=Object.values(S.skills).filter(a=>a.length>0).length;
+  const cards=[
+    {k:t("stats.total"),v:total,c:"text-amber-400"},
+    {k:t("stats.streak"),v:str,c:"text-emerald-400"},
+    {k:t("stats.avgPride"),v:avgP,c:"text-orange-400"},
+    {k:t("stats.skills"),v:skillsUsed,c:"text-blue-400"},
+  ];
+  document.getElementById("stat-cards").innerHTML=cards.map(({k,v,c})=>`
+    <div class="card p-5"><div class="text-xs mb-1" style="color:var(--td)">${esc(k)}</div><div class="text-3xl font-bold ${esc(c)}">${esc(String(v))}</div></div>`).join("");
+  // Week bar
+  const{labels,data}=getWeekData();
+  destroyChart("ach");
+  charts.ach=new Chart(document.getElementById("achChart"),{type:"bar",data:{labels,datasets:[{label:"",data,backgroundColor:"#f59e0b",borderRadius:6}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:chartColors.tickColor},grid:{display:false}},y:{ticks:{color:chartColors.tickColor,precision:0},grid:{color:chartColors.gridColor},beginAtZero:true}}}});
+  // Cat doughnut
+  const counts={};S.entries.forEach(e=>counts[e.category]=(counts[e.category]||0)+1);
+  const catK=Object.keys(counts);
+  destroyChart("cat");
+  if(catK.length){
+    charts.cat=new Chart(document.getElementById("catChart"),{type:"doughnut",
+      data:{labels:catK.map(catLabel),datasets:[{data:catK.map(k=>counts[k]),backgroundColor:catK.map(catColor),borderColor:"transparent",borderWidth:2}]},
+      options:{responsive:true,plugins:{legend:{position:"bottom",labels:{color:chartColors.tickColor}}}}});
+  }
+  // Radar
+  const SKILL_KEYS=["confidence","charisma","communication","empathy","leadership","resilience","publicSpeak","discipline","positivity","social"];
+  const radarData=SKILL_KEYS.map(k=>{const a=S.skills[k]||[];return a.length?a[a.length-1].score:0;});
+  const radarLabels=SKILL_KEYS.map(k=>t(`skills.names.${k}`));
+  destroyChart("radar");
+  charts.radar=new Chart(document.getElementById("radarChart"),{type:"radar",
+    data:{labels:radarLabels,datasets:[{label:t("skills.title"),data:radarData,borderColor:"#f59e0b",backgroundColor:"rgba(245,158,11,.15)",pointBackgroundColor:"#f59e0b",pointRadius:4}]},
+    options:{responsive:true,scales:{r:{ticks:{color:chartColors.tickColor,backdropColor:"transparent",stepSize:2},grid:{color:chartColors.gridColor},pointLabels:{color:chartColors.tickColor},min:0,max:10}},
+      plugins:{legend:{labels:{color:chartColors.tickColor}}}}});
+}
+
+// ══════════════════════════════════════════
+// SKILLS
+// ══════════════════════════════════════════
+const SKILL_DEFS=[
+  {id:"confidence", icon:"💪",color:"#f59e0b"},
+  {id:"charisma",   icon:"✨",color:"#f97316"},
+  {id:"communication",icon:"💬",color:"#3b82f6"},
+  {id:"empathy",    icon:"❤️",color:"#ef4444"},
+  {id:"leadership", icon:"👑",color:"#8b5cf6"},
+  {id:"resilience", icon:"🛡️",color:"#10b981"},
+  {id:"publicSpeak",icon:"🎤",color:"#06b6d4"},
+  {id:"discipline", icon:"⏰",color:"#facc15"},
+  {id:"positivity", icon:"🌟",color:"#f43f5e"},
+  {id:"social",     icon:"🧠",color:"#a855f7"},
+];
+function renderSkills(){
+  const g=document.getElementById("skills-grid");
+  g.innerHTML=SKILL_DEFS.map(sk=>{
+    const hist=S.skills[sk.id]||[];
+    const last=hist.length?hist[hist.length-1]:null;
+    const score=last?last.score:0;
+    const pct=score*10;
+    const trend=hist.length>=2?(hist[hist.length-1].score>hist[hist.length-2].score?"↑":hist[hist.length-1].score<hist[hist.length-2].score?"↓":"→"):"";
+    const trendCol=trend==="↑"?"#10b981":trend==="↓"?"#ef4444":"#94a3b8";
+    const tips=(t(`skills.tips.${sk.id}`)||[]);
+    const tipsHtml=tips.map(tip=>`<li class="text-sm mb-1" style="color:var(--td)">• ${esc(tip)}</li>`).join("");
+    return `<div class="card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span style="font-size:1.5rem">${sk.icon}</span>
+          <span class="font-semibold">${esc(t(`skills.names.${sk.id}`))}</span>
+        </div>
+        <span style="color:${trendCol};font-size:1.2rem;font-weight:700">${trend}</span>
+      </div>
+      <div class="skill-bar mb-1"><div class="skill-fill" style="width:${pct}%;background:${sk.color}"></div></div>
+      <div class="flex justify-between text-xs mb-3" style="color:var(--td)">
+        <span>${last?`${esc(t("skills.last"))} ${last.score}/10`:esc(t("skills.noAssess"))}</span>
+        <span style="color:${sk.color};font-weight:700">${score}/10</span>
+      </div>
+      <details class="mb-3">
+        <summary class="text-xs cursor-pointer" style="color:var(--td)">${esc(t("skills.tips"))}</summary>
+        <ul class="mt-2 space-y-1">${tipsHtml}</ul>
+      </details>
+      <button type="button" class="btn btn-amber w-full py-2 text-sm" onclick="openSkillModal('${sk.id}')">
+        <i class="fa-solid fa-plus mr-1"></i>${esc(t("skills.assess"))}
+      </button>
+    </div>`;
+  }).join("");
+  renderSkillHistory();
+}
+function renderSkillHistory(){
+  const all=SKILL_DEFS.flatMap(sk=>(S.skills[sk.id]||[]).map(a=>({...a,skill:sk.id,color:sk.color})));
+  all.sort((a,b)=>a.date.localeCompare(b.date));
+  const last30=all.slice(-30);
+  destroyChart("skillH");
+  if(!last30.length)return;
+  const datasets=SKILL_DEFS.map(sk=>{
+    const pts=last30.filter(a=>a.skill===sk.id);
+    return{label:t(`skills.names.${sk.id}`),data:pts.map(a=>({x:a.date,y:a.score})),borderColor:sk.color,backgroundColor:sk.color+"33",fill:false,tension:.3,pointRadius:4};
+  }).filter(d=>d.data.length);
+  charts.skillH=new Chart(document.getElementById("skillHistChart"),{type:"line",
+    data:{datasets},
+    options:{responsive:true,parsing:false,scales:{x:{type:"category",ticks:{color:chartColors.tickColor},grid:{display:false}},y:{min:0,max:10,ticks:{color:chartColors.tickColor,precision:0},grid:{color:chartColors.gridColor}}},
+      plugins:{legend:{labels:{color:chartColors.tickColor}}}}});
+}
+async function openSkillModal(skillId){
+  const sk=SKILL_DEFS.find(s=>s.id===skillId);if(!sk)return;
+  const result=await openModal(`
+    <h3 class="text-xl font-semibold mb-4">${sk.icon} ${esc(t(`skills.names.${skillId}`))}</h3>
+    <label class="block mb-4">
+      <span class="text-sm mb-1 block" style="color:var(--td)">${esc(t("skills.scoreLabel"))}: <span id="sv-disp">5</span>/10</span>
+      <input id="sv" type="range" min="1" max="10" value="5" oninput="document.getElementById('sv-disp').textContent=this.value">
+    </label>
+    <label class="block mb-4">
+      <span class="text-sm mb-1 block" style="color:var(--td)">${esc(t("skills.noteLbl"))}</span>
+      <input id="sn" class="inp" maxlength="200">
+    </label>
+    <div class="flex gap-3 justify-end">
+      <button type="button" onclick="closeModal(null)" class="btn btn-ghost px-5 py-2">${esc(t("settings.cancel"))}</button>
+      <button type="button" onclick="closeModal({score:+document.getElementById('sv').value,note:document.getElementById('sn').value})" class="btn btn-amber px-5 py-2">${esc(t("skills.saveSc"))}</button>
+    </div>`);
+  if(!result)return;
+  if(!S.skills[skillId])S.skills[skillId]=[];
+  S.skills[skillId].push({date:todayKey(),score:result.score,note:result.note.trim()});
+  save();renderSkills();if(curPage==="stats")renderStats();toast(t("toast.saved"));
+}
+
+// ══════════════════════════════════════════
+// LINKS
+// ══════════════════════════════════════════
+const LINK_STATUSES=["later","watching","done","important","archive"];
+let activeLinkStatus="all";
+function fillLinkTabs(){
+  const c=document.getElementById("link-tabs");if(!c)return;
+  const statuses=["all",...LINK_STATUSES];
+  c.innerHTML=statuses.map(s=>`
+    <button type="button" data-lst="${s}" class="btn px-3 py-1.5 text-sm ${activeLinkStatus===s?"btn-amber":"btn-ghost"}">
+      ${esc(s==="all"?t("links.all"):t(`links.statuses.${s}`))}
+    </button>`).join("");
+  c.querySelectorAll("[data-lst]").forEach(b=>b.addEventListener("click",()=>{activeLinkStatus=b.dataset.lst;fillLinkTabs();renderLinks();}));
+}
+function renderLinks(){
+  const c=document.getElementById("links-grid");
+  let list=S.links;
+  if(activeLinkStatus!=="all")list=list.filter(l=>l.status===activeLinkStatus);
+  if(!list.length){c.innerHTML=`<div class="col-span-full card p-10 text-center" style="color:var(--tm)">${esc(t("links.empty"))}</div>`;return;}
+  c.innerHTML=list.map(l=>{
+    const ytId=l.ytId;
+    const thumb=ytId?`<img src="${ytThumb(ytId)}" class="w-full h-36 object-cover rounded-xl mb-3" loading="lazy" onerror="this.style.display='none'">`
+      :`<div class="w-full h-16 rounded-xl mb-3 flex items-center justify-center text-3xl" style="background:var(--inp)">${getDomainIcon(l.url)}</div>`;
+    const stClass=`s-${l.status}`;
+    const moveOpts=LINK_STATUSES.filter(s=>s!==l.status).map(s=>`<option value="${s}">${esc(t(`links.statuses.${s}`))}</option>`).join("");
+    return `<div class="card p-4">
+      ${thumb}
+      <div class="font-semibold text-sm mb-1 line-clamp-2">${esc(l.title||getDomain(l.url))}</div>
+      ${l.note?`<div class="text-xs mb-2" style="color:var(--td)">${esc(l.note)}</div>`:""}
+      <div class="flex items-center justify-between text-xs mb-3">
+        <span class="${stClass} font-semibold">${esc(t(`links.statuses.${l.status}`))}</span>
+        <span style="color:var(--tm)">${esc(fmtDate(l.date,S.lang))}</span>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <a href="${esc(l.url)}" target="_blank" rel="noopener" class="btn btn-ghost px-3 py-1.5 text-xs flex-1 text-center"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>${esc(t("links.open"))}</a>
+        <select class="inp text-xs px-2 py-1.5 flex-1" style="min-width:0" onchange="moveLink(${l.id},this.value)">
+          <option value="">${esc(t("links.moveTo"))}</option>${moveOpts}
+        </select>
+        <button type="button" class="btn btn-danger px-3 py-1.5 text-xs" onclick="delLink(${l.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function getDomainIcon(url){
+  const dom=getDomain(url);
+  if(dom.includes("youtube")||dom.includes("youtu.be"))return"📺";
+  if(dom.includes("twitter")||dom.includes("x.com"))return"🐦";
+  if(dom.includes("instagram"))return"📸";
+  if(dom.includes("telegram"))return"✈️";
+  if(dom.includes("medium")||dom.includes("habr"))return"📝";
+  return"🔗";
+}
+document.getElementById("addlink-btn").addEventListener("click",openAddLink);
+async function openAddLink(){
+  const result=await openModal(`
+    <h3 class="text-xl font-semibold mb-4"><i class="fa-solid fa-link mr-2 text-amber-400"></i>${esc(t("links.add"))}</h3>
+    <label class="block mb-3">
+      <span class="text-sm mb-1 block" style="color:var(--td)">${esc(t("links.urlLbl"))}</span>
+      <input id="lurl" class="inp" type="url" placeholder="https://youtube.com/watch?v=..." oninput="previewYT(this.value)">
+    </label>
+    <div id="yt-prev" class="mb-3 hidden"><img id="yt-prev-img" class="w-full h-32 object-cover rounded-xl"></div>
+    <label class="block mb-3">
+      <span class="text-sm mb-1 block" style="color:var(--td)">${esc(t("links.titleLbl"))}</span>
+      <input id="ltitle" class="inp" maxlength="120">
+    </label>
+    <label class="block mb-3">
+      <span class="text-sm mb-1 block" style="color:var(--td)">${esc(t("links.catLbl"))}</span>
+      <select id="lstat" class="inp">${LINK_STATUSES.map(s=>`<option value="${s}">${esc(t(`links.statuses.${s}`))}</option>`).join("")}</select>
+    </label>
+    <label class="block mb-4">
+      <span class="text-sm mb-1 block" style="color:var(--td)">${esc(t("links.noteLbl"))}</span>
+      <input id="lnote" class="inp" maxlength="200">
+    </label>
+    <div class="flex gap-3 justify-end">
+      <button type="button" onclick="closeModal(null)" class="btn btn-ghost px-5 py-2">${esc(t("settings.cancel"))}</button>
+      <button type="button" onclick="closeModal({url:document.getElementById('lurl').value,title:document.getElementById('ltitle').value,status:document.getElementById('lstat').value,note:document.getElementById('lnote').value})" class="btn btn-amber px-5 py-2">${esc(t("links.add"))}</button>
+    </div>`);
+  if(!result||!result.url.trim())return;
+  const url=result.url.trim();
+  const ytId=yt(url);
+  S.links.unshift({id:Date.now(),url,title:result.title.trim()||getDomain(url),status:result.status,note:result.note.trim(),date:todayKey(),ytId:ytId||null});
+  save();fillLinkTabs();renderLinks();toast(t("toast.added"));
+}
+window.previewYT=url=>{
+  const id=yt(url);const el=document.getElementById("yt-prev");const img=document.getElementById("yt-prev-img");
+  if(id&&el&&img){img.src=ytThumb(id);el.classList.remove("hidden");}else if(el){el.classList.add("hidden");}
+};
+function moveLink(id,status){if(!status)return;const l=S.links.find(x=>x.id===id);if(!l)return;l.status=status;save();fillLinkTabs();renderLinks();toast(t("toast.saved"));}
+async function delLink(id){if(!await confirm2(t("confirm.delete")+"?"))return;S.links=S.links.filter(x=>x.id!==id);save();renderLinks();toast(t("toast.deleted"));}
+
+// ══════════════════════════════════════════
+// QUOTE POPUP
+// ══════════════════════════════════════════
+let popupTimeout=null;
+function showQuotePopup(){
+  if(!S.settings.quotePopup||!S.quotes.length)return;
+  const q=S.quotes[Math.floor(Math.random()*S.quotes.length)];
+  document.getElementById("qpt").textContent=`"${q.text}"`;
+  document.getElementById("qpa").textContent=q.author?`— ${q.author}`:"";
+  const el=document.getElementById("qpopup");
+  el.classList.add("show");
+  S.settings.lastPopupTs=Date.now();save();
+  clearTimeout(popupTimeout);
+  popupTimeout=setTimeout(()=>el.classList.remove("show"),8000);
+}
+document.getElementById("qpclose").addEventListener("click",()=>{document.getElementById("qpopup").classList.remove("show");clearTimeout(popupTimeout);});
+document.getElementById("quote-popup-btn").addEventListener("click",showQuotePopup);
+function schedulePopup(){
+  const interval=(+S.settings.popupIntervalMin||45)*60000;
+  const elapsed=Date.now()-(S.settings.lastPopupTs||0);
+  const delay=Math.max(0,interval-elapsed);
+  setTimeout(()=>{showQuotePopup();setInterval(showQuotePopup,interval);},delay);
+}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════
+async function reqNotif(){
+  if(!("Notification"in window))return false;
+  if(Notification.permission==="granted")return true;
+  if(Notification.permission==="denied")return false;
+  return(await Notification.requestPermission())==="granted";
+}
+function checkReminder(){
+  const s=S.settings;if(!s.reminderEnabled)return;
+  if(!("Notification"in window)||Notification.permission!=="granted")return;
+  const today=todayKey();
+  if(S.entries.some(e=>e.date===today))return;
+  if(s.lastReminderDate===today)return;
+  const[h,m]=s.reminderTime.split(":").map(Number);
+  const now=new Date(),cur=now.getHours()*60+now.getMinutes();
+  if(cur<h*60+m)return;
+  const opts={body:S.lang==="en"?"What went well today? 🌅":S.lang==="uz"?"Bugun nima yaxshi bo'ldi? 🌅":"Запиши свою победу дня! 🌅",icon:"icon-192.png",badge:"icon-192.png",tag:"daily"};
+  if(navigator.serviceWorker?.ready)navigator.serviceWorker.ready.then(r=>r.showNotification('Success Diary',opts)).catch(()=>{try{new Notification('Success Diary',opts);}catch{}});
+  else try{new Notification('Success Diary',opts);}catch{}
+  S.settings.lastReminderDate=today;save();
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkReminder();});
+setInterval(checkReminder,5*60000);
+
+// ══════════════════════════════════════════
+// SETTINGS MODAL
+// ══════════════════════════════════════════
+document.getElementById("settings-btn").addEventListener("click",openSettings);
+async function openSettings(){
+  const s=S.settings;
+  await openModal(`
+    <h3 class="text-xl font-semibold mb-5">${esc(t("settings.title"))}</h3>
+    <div class="space-y-5">
+      <div>
+        <label class="block text-sm mb-1" style="color:var(--td)">${esc(t("settings.name"))}</label>
+        <input id="set-name" class="inp" value="${esc(S.username)}" maxlength="40" onchange="S.username=this.value.trim()||S.username;save();applyProfile()">
+      </div>
+      <div>
+        <div class="text-sm mb-2" style="color:var(--td)">${esc(t("settings.theme"))}</div>
+        <div class="grid grid-cols-3 gap-2">
+          ${["dark","light","warm"].map(th=>`<button type="button" onclick="S.theme='${th}';applyTheme('${th}');save();this.closest('.grid').querySelectorAll('button').forEach(b=>b.classList.toggle('btn-amber',b.textContent.trim()===t('settings.${th}')));this.classList.add('btn-amber')" class="btn ${S.theme===th?"btn-amber":"btn-ghost"} py-3 text-sm">${esc(t("settings."+th))}</button>`).join("")}
+        </div>
+      </div>
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <div class="font-medium text-sm">${esc(t("settings.reminder"))}</div>
+          <div class="text-xs" style="color:var(--td)">${esc(t("settings.reminderDesc"))}</div>
+        </div>
+        <div id="rem-tog" class="toggle ${s.reminderEnabled?"on":""}" onclick="toggleReminder(this)"></div>
+      </div>
+      <input id="rem-time" type="time" value="${s.reminderTime}" class="inp" ${s.reminderEnabled?"":"disabled"} onchange="S.settings.reminderTime=this.value;save()">
+      <div class="flex items-center justify-between gap-3">
+        <div class="font-medium text-sm">${esc(t("settings.quotePopup"))}</div>
+        <div class="toggle ${s.quotePopup?"on":""}" onclick="S.settings.quotePopup=!S.settings.quotePopup;save();this.classList.toggle('on')"></div>
+      </div>
+      <div class="flex gap-3">
+        <button type="button" class="btn btn-ghost flex-1 py-2.5 text-sm" onclick="exportData()"><i class="fa-solid fa-download mr-1"></i>${esc(t("settings.export"))}</button>
+        <button type="button" class="btn btn-ghost flex-1 py-2.5 text-sm" onclick="importData()"><i class="fa-solid fa-upload mr-1"></i>${esc(t("settings.import"))}</button>
+      </div>
+      <button type="button" class="btn btn-danger w-full py-2.5 text-sm" onclick="clearAll()"><i class="fa-solid fa-trash mr-1"></i>${esc(t("settings.clearAll"))}</button>
+      <button type="button" onclick="closeModal(true)" class="btn btn-amber w-full py-2.5">${esc(t("settings.save"))}</button>
+    </div>`,false);
+}
+window.toggleReminder=async function(el){
+  if(!S.settings.reminderEnabled){
+    const ok=await reqNotif();if(!ok){toast(t("toast.error")+" Notifications denied","err");return;}
+    S.settings.reminderEnabled=true;el.classList.add("on");
+    const ti=document.getElementById("rem-time");if(ti)ti.disabled=false;
+  }else{S.settings.reminderEnabled=false;el.classList.remove("on");const ti=document.getElementById("rem-time");if(ti)ti.disabled=true;}
+  save();
+};
+async function clearAll(){
+  closeModal(null);
+  if(!await confirm2(t("settings.confirmClear")))return;
+  S={...JSON.parse(JSON.stringify(DEF_STATE))};save();
+  applyTheme(S.theme);applyLang();applyProfile();showQuote();renderRecent();renderWeekChart();
+  toast(t("toast.deleted"));
+}
+
+// ══════════════════════════════════════════
+// EXPORT / IMPORT
+// ══════════════════════════════════════════
+function exportData(){
+  const b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const u=URL.createObjectURL(b),a=document.createElement("a");
+  a.href=u;a.download=`moy-put-backup-${todayKey()}.json`;
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);
+  toast(t("toast.exported"));
+}
+function importData(){
+  const inp=document.createElement("input");inp.type="file";inp.accept="application/json";
+  inp.onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;
+    try{
+      const parsed=JSON.parse(await f.text());
+      if(!await confirm2(t("settings.import")+"?"))return;
+      S={...DEF_STATE,...parsed,settings:{...DEF_STATE.settings,...(parsed.settings||{})},skills:{...DEF_STATE.skills,...(parsed.skills||{})}};
+      save();applyTheme(S.theme);applyLang();applyProfile();showQuote();renderRecent();renderWeekChart();
+      toast(t("toast.imported"));
+    }catch{toast(t("toast.error"),"err");}
+  };inp.click();
+}
+
+// ══════════════════════════════════════════
+// MODALS + TOASTS
+// ══════════════════════════════════════════
+function toast(msg,type="ok"){
+  const el=document.createElement("div");
+  el.className=`fade text-white px-5 py-3 rounded-2xl shadow-2xl max-w-sm text-sm ${type==="err"?"bg-red-600":"bg-emerald-600"}`;
+  el.textContent=msg;document.getElementById("toast-wrap").appendChild(el);
+  setTimeout(()=>{el.style.opacity="0";el.style.transition="opacity .3s";},2300);
+  setTimeout(()=>el.remove(),2700);
+}
+function openModal(html,closable=true){
+  return new Promise(res=>{
+    const wrap=document.getElementById("modal-wrap");
+    wrap.innerHTML=`<div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,.7);backdrop-filter:blur(4px)">
+      <div class="card p-6 max-w-md w-full max-h-[90vh] overflow-y-auto fade" style="border-color:var(--br)" role="dialog" aria-modal="true">${html}</div>
+    </div>`;
+    if(closable)wrap.querySelector(".fixed").addEventListener("click",e=>{if(e.target===e.currentTarget){wrap.innerHTML="";res(null);}});
+    wrap._res=res;
+  });
+}
+function closeModal(val){const w=document.getElementById("modal-wrap");const r=w._res;w.innerHTML="";if(r)r(val);}
+function prompt2(label,val=""){
+  return openModal(`<h3 class="font-semibold mb-3">${esc(label)}</h3>
+    <input id="pi" class="inp mb-4" value="${esc(val)}">
+    <div class="flex gap-3 justify-end">
+      <button type="button" onclick="closeModal(null)" class="btn btn-ghost px-4 py-2">${esc(t("confirm.no"))}</button>
+      <button type="button" onclick="closeModal(document.getElementById('pi').value)" class="btn btn-amber px-4 py-2">${esc(t("ok"))}</button>
+    </div>`,true).then(v=>{if(v===null)return null;return v;});
+}
+function confirm2(msg){
+  return openModal(`<p class="font-medium mb-5">${esc(msg)}</p>
+    <div class="flex gap-3 justify-end">
+      <button type="button" onclick="closeModal(false)" class="btn btn-ghost px-4 py-2">${esc(t("confirm.no"))}</button>
+      <button type="button" onclick="closeModal(true)" class="btn btn-danger px-4 py-2">${esc(t("confirm.yes"))}</button>
+    </div>`,true);
+}
+// Make prompt2 input focus & enter
+document.getElementById("modal-wrap").addEventListener("click",e=>{
+  const inp=e.currentTarget.querySelector("#pi");if(inp){inp.focus();inp.select();}
+});
+document.addEventListener("keydown",e=>{
+  const inp=document.getElementById("pi");
+  if(inp&&e.key==="Enter")closeModal(inp.value);
+  if(e.key==="Escape")closeModal(null);
+});
+
+// ══════════════════════════════════════════
+// LANG BUTTONS
+// ══════════════════════════════════════════
+document.querySelectorAll(".lang-btn").forEach(b=>b.addEventListener("click",()=>{
+  S.lang=b.dataset.lang;save();applyLang();applyProfile();
+  renderRecent();if(curPage!=="dashboard")showPage(curPage);
+}));
+
+// ══════════════════════════════════════════
+// SERVICE WORKER
+// ══════════════════════════════════════════
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+applyLang();
+applyProfile();
+showQuote();
+fillCatSelects();
+renderRecent();
+renderWeekChart();
+showPage("dashboard");
+if(S.settings.quotePopup)schedulePopup();
+setTimeout(checkReminder,2000);
+</script>
+</body>
+</html>
