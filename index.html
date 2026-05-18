@@ -331,7 +331,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;backgroun
 <div id="toast-wrap" class="fixed bottom-24 right-4 sm:right-6 z-50 space-y-2"></div>
 <div id="modal-wrap"></div>
 
-<script>
+<script type="module">
 "use strict";
 // ══════════════════════════════════════════
 // TRANSLATIONS
@@ -447,6 +447,124 @@ en:{
 }};
 
 // ══════════════════════════════════════════
+// FIREBASE — облачная синхронизация
+// ══════════════════════════════════════════
+// Firebase SDK загружается через CDN (без npm/сборщика)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCOQF9xiFaHmgSk6vFvbicSY-BERbHP8r0",
+  authDomain: "success-diary-4326a.firebaseapp.com",
+  projectId: "success-diary-4326a",
+  storageBucket: "success-diary-4326a.firebasestorage.app",
+  messagingSenderId: "624970744864",
+  appId: "1:624970744864:web:17ca8d312302c81860e845"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+// ID пользователя — храним в localStorage, генерируем один раз
+// Это анонимный уникальный ID — привязан к браузеру
+let USER_ID = localStorage.getItem("sd_uid");
+if (!USER_ID) {
+  USER_ID = "user_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  localStorage.setItem("sd_uid", USER_ID);
+}
+const userDoc = () => doc(db, "users", USER_ID);
+
+// Флаг — идёт ли сейчас загрузка из облака (чтобы не перезаписать)
+let cloudLoaded = false;
+let saveTimeout = null;
+
+// Показываем индикатор синхронизации
+function showSyncStatus(status) {
+  let el = document.getElementById("sync-status");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "sync-status";
+    el.style.cssText = "position:fixed;top:8px;right:12px;z-index:999;font-size:11px;padding:3px 10px;border-radius:99px;transition:opacity .5s";
+    document.body.appendChild(el);
+  }
+  if (status === "saving") { el.style.background="#f59e0b22"; el.style.color="#f59e0b"; el.textContent="☁️ Сохраняю..."; el.style.opacity="1"; }
+  if (status === "saved")  { el.style.background="#10b98122"; el.style.color="#10b981"; el.textContent="✅ Синхронизировано"; el.style.opacity="1"; setTimeout(()=>el.style.opacity="0",2000); }
+  if (status === "error")  { el.style.background="#ef444422"; el.style.color="#f87171"; el.textContent="⚠️ Офлайн — сохранено локально"; el.style.opacity="1"; }
+  if (status === "loading"){ el.style.background="#3b82f622"; el.style.color="#60a5fa"; el.textContent="🔄 Загружаю данные..."; el.style.opacity="1"; }
+}
+
+// Сохранение в облако с дебаунсом (не чаще раза в 2 сек)
+async function saveToCloud() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    showSyncStatus("saving");
+    try {
+      await setDoc(userDoc(), S);
+      showSyncStatus("saved");
+    } catch(e) {
+      console.warn("Firebase save error:", e);
+      showSyncStatus("error");
+    }
+  }, 2000);
+}
+
+// Загрузка из облака при старте
+async function loadFromCloud() {
+  showSyncStatus("loading");
+  try {
+    const snap = await getDoc(userDoc());
+    if (snap.exists()) {
+      const cloudData = snap.data();
+      S = { ...DEF_STATE, ...cloudData,
+        settings: { ...DEF_STATE.settings, ...(cloudData.settings||{}) },
+        skills: { ...DEF_STATE.skills, ...(cloudData.skills||{}) }
+      };
+      localStorage.setItem(LS, JSON.stringify(S));
+      cloudLoaded = true;
+      // Обновляем UI с облачными данными
+      applyTheme(S.theme); applyLang(); applyProfile(); showQuote();
+      fillCatSelects(); renderRecent(); renderWeekChart();
+      if (curPage !== "dashboard") showPage(curPage);
+      showSyncStatus("saved");
+    } else {
+      // Первый раз — загружаем локальные данные в облако
+      await setDoc(userDoc(), S);
+      cloudLoaded = true;
+      showSyncStatus("saved");
+    }
+  } catch(e) {
+    console.warn("Firebase load error:", e);
+    showSyncStatus("error");
+    cloudLoaded = true; // продолжаем работу офлайн
+  }
+}
+
+// Слушаем изменения в реальном времени с других устройств
+function subscribeToCloud() {
+  onSnapshot(userDoc(), (snap) => {
+    if (!snap.exists() || !cloudLoaded) return;
+    const cloudData = snap.data();
+    // Проверяем что данные действительно изменились (не наше же сохранение)
+    if (JSON.stringify(cloudData) === JSON.stringify(S)) return;
+    S = { ...DEF_STATE, ...cloudData,
+      settings: { ...DEF_STATE.settings, ...(cloudData.settings||{}) },
+      skills: { ...DEF_STATE.skills, ...(cloudData.skills||{}) }
+    };
+    localStorage.setItem(LS, JSON.stringify(S));
+    // Тихо обновляем UI
+    applyProfile(); showQuote();
+    if (curPage === "dashboard") { renderRecent(); renderWeekChart(); }
+    if (curPage === "diary") renderAllEntries();
+    if (curPage === "calendar") renderCal();
+    if (curPage === "stats") renderStats();
+    if (curPage === "skills") renderSkills();
+    if (curPage === "links") { fillLinkTabs(); renderLinks(); }
+    if (curPage === "mentor") renderQuotesList();
+    showSyncStatus("saved");
+  }, (e) => console.warn("Snapshot error:", e));
+}
+
+// ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
 const LS="mpv3";
@@ -469,7 +587,12 @@ try{
   const raw=JSON.parse(localStorage.getItem(LS));
   S=raw?{...DEF_STATE,...raw,settings:{...DEF_STATE.settings,...(raw.settings||{})},skills:{...DEF_STATE.skills,...(raw.skills||{})}}:{...DEF_STATE};
 }catch{S={...JSON.parse(JSON.stringify(DEF_STATE))};}
-const save=()=>localStorage.setItem(LS,JSON.stringify(S));
+
+// save — сохраняет локально И в облако
+const save=()=>{
+  localStorage.setItem(LS,JSON.stringify(S));
+  if(cloudLoaded) saveToCloud();
+};
 
 // ══════════════════════════════════════════
 // UTILS
@@ -1204,6 +1327,8 @@ renderWeekChart();
 showPage("dashboard");
 if(S.settings.quotePopup)schedulePopup();
 setTimeout(checkReminder,2000);
+// Запускаем Firebase синхронизацию
+loadFromCloud().then(()=>subscribeToCloud());
 </script>
 </body>
 </html>
