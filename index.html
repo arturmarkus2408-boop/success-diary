@@ -514,7 +514,7 @@ async function loadFromCloud() {
   showSyncStatus("loading");
   try {
     const snap = await userDoc().get();
-    if (snap.exists()) {
+    if (snap.exists) {
       const cloudData = snap.data();
       S = { ...DEF_STATE, ...cloudData,
         settings: { ...DEF_STATE.settings, ...(cloudData.settings||{}) },
@@ -543,7 +543,7 @@ async function loadFromCloud() {
 // Слушаем изменения в реальном времени с других устройств
 function subscribeToCloud() {
   userDoc().onSnapshot((snap) => {
-    if (!snap.exists() || !cloudLoaded) return;
+    if (!snap.exists || !cloudLoaded) return;
     const cloudData = snap.data();
     // Проверяем что данные действительно изменились (не наше же сохранение)
     if (JSON.stringify(cloudData) === JSON.stringify(S)) return;
